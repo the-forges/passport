@@ -30,9 +30,13 @@ class _AppState extends State<App> {
       title: 'Passport',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+        colorSchemeSeed: Colors.red,
       ),
       home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Passport'),
+          centerTitle: true,
+        ),
         body: _pages.elementAt(_selectedIndex),
         floatingActionButton: FloatingActionButton(
           onPressed: () {},
