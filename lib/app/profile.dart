@@ -19,7 +19,9 @@ class _ProfileState extends State<Profile> {
   String _privateKey = "";
   String _publicKey = "";
 
+  @override
   initState() {
+    super.initState();
     _getMasterKey();
   }
 
