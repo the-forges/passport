@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:passport/app/authenticate.dart';
 import 'package:passport/app/devices.dart';
 import 'profile.dart';
 
@@ -20,6 +22,9 @@ class _AppState extends State<App> {
     Profile(),
     Devices(),
   ];
+
+  String? _error;
+  User? _user;
   
   _onNavigationBarTap(index) {
     setState(() {
@@ -31,18 +36,22 @@ class _AppState extends State<App> {
 
   Future<void> scanQR() async {
     String barcodeScanRes;
+    AuthenticationResponse response;
 
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.QR);
-      log(barcodeScanRes);
+      response = await Authentication(url: barcodeScanRes).authenticate();
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
+      response = const AuthenticationResponse();
     }
 
     if (!mounted) return;
 
     setState(() {
       _scanQR = barcodeScanRes;
+      _error = response.error;
+      _user = response.user;
     });
   }
 
