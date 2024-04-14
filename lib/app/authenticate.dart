@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -10,9 +11,10 @@ class Authentication {
 
   Future<AuthenticationResponse> authenticate() async {
     final applicationsDir = await getApplicationDocumentsDirectory();
-    final publicKeyPath = path_helper.join(applicationsDir.path, 'master.pub');
+    final publicKeyPath = path_helper.join(applicationsDir.path, 'credentials','master.pub');
     final publicKey = File(publicKeyPath);
     if (!publicKey.existsSync()) {
+      log("exists: ${publicKey.existsSync()}");
       return const AuthenticationResponse(error: "missing master key");
     }
 
