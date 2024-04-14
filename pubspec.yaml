@@ -40,6 +40,8 @@ dependencies:
   crypton: ^2.2.1
   flutter_barcode_scanner: ^2.0.0
   dio: ^5.4.3
+  archive: ^3.4.10
+  share_extend: ^2.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,12 @@
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as pathHelper;
 import 'package:crypton/crypton.dart';
+import 'package:share_extend/share_extend.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -13,7 +16,6 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-
   String _privateKey = "";
   String _publicKey = "";
 
@@ -26,10 +28,12 @@ class _ProfileState extends State<Profile> {
   _getMasterKey() async {
     final applicationsDir = await getApplicationDocumentsDirectory();
 
-    final privateKeyPath = pathHelper.join(applicationsDir.path, 'master.key');
+    final privateKeyPath =
+        pathHelper.join(applicationsDir.path, 'credentials', 'master.key');
     final privateKey = File(privateKeyPath);
 
-    final publicKeyPath = pathHelper.join(applicationsDir.path, 'master.pub');
+    final publicKeyPath =
+        pathHelper.join(applicationsDir.path, 'credentials', 'master.pub');
     final publicKey = File(publicKeyPath);
     if (privateKey.existsSync() && publicKey.existsSync()) {
       setState(() {
@@ -41,9 +45,13 @@ class _ProfileState extends State<Profile> {
 
   _createMasterKey() async {
     final applicationsDir = await getApplicationDocumentsDirectory();
+    await Directory(pathHelper.join(applicationsDir.path, 'credentials'))
+        .create(recursive: true);
+    log(applicationsDir.path);
     final keyPair = ECKeypair.fromRandom();
 
-    final privateKeyPath = pathHelper.join(applicationsDir.path, 'master.key');
+    final privateKeyPath =
+        pathHelper.join(applicationsDir.path, 'credentials', 'master.key');
     var privateKey = File(privateKeyPath);
     if (privateKey.existsSync()) {
       privateKey.deleteSync();
@@ -51,7 +59,8 @@ class _ProfileState extends State<Profile> {
     privateKey.createSync();
     privateKey.writeAsStringSync(keyPair.privateKey.toString());
 
-    final publicKeyPath = pathHelper.join(applicationsDir.path, 'master.pub');
+    final publicKeyPath =
+        pathHelper.join(applicationsDir.path, 'credentials', 'master.pub');
     var publicKey = File(publicKeyPath);
     if (publicKey.existsSync()) {
       publicKey.deleteSync();
@@ -65,24 +74,36 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+  _exportMasterKey() async {
+    final applicationsDir = await getApplicationDocumentsDirectory();
+    var encoder = ZipFileEncoder();
+    await encoder.zipDirectoryAsync(
+      Directory(pathHelper.join(applicationsDir.path, 'credentials')),
+      filename: pathHelper.join(applicationsDir.path, 'passport.zip'),
+    );
+    ShareExtend.share(pathHelper.join(applicationsDir.path, 'passport.zip'), 'file');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _publicKey.isEmpty ?
-          ElevatedButton(
-            onPressed: _createMasterKey,
-            child: const Text('Create Master Key'),
-          ) :
-          Column(
-            children: [
-              Text(_publicKey),
-              ElevatedButton(
+        _publicKey.isEmpty
+            ? ElevatedButton(
                 onPressed: _createMasterKey,
-                child: const Text('Reset Master Key'),
+                child: const Text('Create Master Key'),
               )
-            ]
-          ),
+            : Row(children: [
+                ElevatedButton(
+                  onPressed: _createMasterKey,
+                  child: const Text('Reset Master Key'),
+                ),
+                const Expanded(child: Text('')),
+                ElevatedButton(
+                  onPressed: _exportMasterKey,
+                  child: const Text('Export Master Key'),
+                )
+              ]),
         const Expanded(
           flex: 1,
           child: Center(
@@ -92,5 +113,4 @@ class _ProfileState extends State<Profile> {
       ],
     );
   }
-
 }

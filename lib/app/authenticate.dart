@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -17,11 +16,8 @@ class Authentication {
       return const AuthenticationResponse(error: "missing master key");
     }
 
-    log("url: $url");
-    log("public_key: ${publicKey.readAsStringSync()}");
     final dio = Dio();
     final response = await dio.post(url, data: {"public_key": publicKey.readAsStringSync()});
-    log("response: ${response.data}");
     return const AuthenticationResponse();
   }
 }
