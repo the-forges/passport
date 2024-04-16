@@ -43,6 +43,7 @@ dependencies:
   archive: ^3.4.10
   share_extend: ^2.0.0
   share_handler: ^0.0.21
+  icons_launcher: ^2.1.7
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +71,8 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/passport.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -96,3 +99,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+icons_launcher:
+  image_path: "assets/passport.png"
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: true
