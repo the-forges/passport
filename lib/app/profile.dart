@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as pathHelper;
 import 'package:crypton/crypton.dart';
 import 'package:share_extend/share_extend.dart';
+import 'package:share_handler/share_handler.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -22,7 +23,44 @@ class _ProfileState extends State<Profile> {
   @override
   initState() {
     super.initState();
+    _handleImport();
     _getMasterKey();
+  }
+
+  _handleImport() async {
+    final handler = ShareHandlerPlatform.instance;
+    SharedMedia? media = await handler.getInitialSharedMedia();
+    if (media != null) {
+      if (!mounted) return;
+      await _importMasterKey(media);
+    }
+
+    handler.sharedMediaStream.listen((SharedMedia media) async {
+      if (!mounted) return;
+      await _importMasterKey(media);
+    });
+  }
+
+  _importMasterKey(SharedMedia media) async {
+    if (media.attachments == null || media.attachments!.isEmpty) return;
+    final backup = media.attachments!.first!;
+    final backupFile = File(backup.path);
+    final archive = ZipDecoder().decodeBytes(backupFile.readAsBytesSync());
+    var key = archive.findFile('master.key');
+    var pub = archive.findFile('master.pub');
+    if (key == null || pub == null) return;
+
+    final applicationsDir = await getApplicationDocumentsDirectory();
+    final credentialsDir = pathHelper.join(applicationsDir.path, 'credentials');
+    Directory(credentialsDir).createSync(recursive: true);
+    File(pathHelper.join(credentialsDir, 'master.key')).createSync();
+    File(pathHelper.join(credentialsDir, 'master.pub')).createSync();
+
+    final keyStream = OutputFileStream(pathHelper.join(credentialsDir, 'master.key'));
+    key.writeContent(keyStream);
+
+    final pubStream = OutputFileStream(pathHelper.join(credentialsDir, 'master.pub'));
+    pub.writeContent(pubStream);
   }
 
   _getMasterKey() async {
@@ -81,7 +119,8 @@ class _ProfileState extends State<Profile> {
       Directory(pathHelper.join(applicationsDir.path, 'credentials')),
       filename: pathHelper.join(applicationsDir.path, 'passport.zip'),
     );
-    ShareExtend.share(pathHelper.join(applicationsDir.path, 'passport.zip'), 'file');
+    ShareExtend.share(
+        pathHelper.join(applicationsDir.path, 'passport.zip'), 'file');
   }
 
   @override
