@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:archive/archive_io.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as pathHelper;
@@ -143,11 +144,9 @@ class _ProfileState extends State<Profile> {
                   child: const Text('Export Master Key'),
                 )
               ]),
-        const Expanded(
+        Expanded(
           flex: 1,
-          child: Center(
-            child: Text('Profile'),
-          ),
+          child: Container(),
         ),
       ],
     );
