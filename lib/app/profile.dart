@@ -20,6 +20,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   String _privateKey = "";
   String _publicKey = "";
+  String? _displayName;
 
   @override
   initState() {
@@ -128,25 +129,44 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+
         _publicKey.isEmpty
             ? ElevatedButton(
                 onPressed: _createMasterKey,
                 child: const Text('Create Master Key'),
               )
-            : Row(children: [
-                ElevatedButton(
-                  onPressed: _createMasterKey,
-                  child: const Text('Reset Master Key'),
-                ),
-                const Expanded(child: Text('')),
-                ElevatedButton(
-                  onPressed: _exportMasterKey,
-                  child: const Text('Export Master Key'),
-                )
-              ]),
+            : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(children: [
+                  ElevatedButton(
+                    onPressed: _createMasterKey,
+                    child: const Text('Reset Master Key'),
+                  ),
+                  const Expanded(child: Text('')),
+                  ElevatedButton(
+                    onPressed: _exportMasterKey,
+                    child: const Text('Export Master Key'),
+                  )
+                ]),
+            ),
         Expanded(
-          flex: 1,
-          child: Container(),
+          flex: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                TextFormField(
+                  initialValue: _displayName,
+                  onFieldSubmitted: (value) {},
+                  cursorRadius: const Radius.circular(8),
+                  decoration: const InputDecoration(
+                    label: Text('Display Name'),
+                    icon: Icon(Icons.abc_rounded)
+                  ),
+                )
+              ],
+            ),
+          ),
         ),
       ],
     );
